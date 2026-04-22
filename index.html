@@ -213,7 +213,7 @@
 
   let filterX = null, filterY = null;
   let targetHeading = 0;
-  let displayHeading = 0;
+  let displayHeading = 0; // unwrapped — accumulates so CSS rotate() never takes the long way round
   let lastDisplayedInt = -1;
   let hasReading = false;
 
@@ -221,17 +221,22 @@
     return ((b - a) % 360 + 540) % 360 - 180;
   }
 
+  function mod360(v) {
+    return ((v % 360) + 360) % 360;
+  }
+
   function tick() {
     if (hasReading) {
-      const diff = shortestAngleDiff(displayHeading, targetHeading);
+      const current = mod360(displayHeading);
+      const diff = shortestAngleDiff(current, targetHeading);
       if (Math.abs(diff) > DEAD_ZONE_DEG) {
-        displayHeading = (displayHeading + diff * DISPLAY_LERP + 360) % 360;
+        displayHeading += diff * DISPLAY_LERP;
       }
       compass.style.transform = `rotate(${-displayHeading}deg)`;
-      const rounded = Math.round(displayHeading) % 360;
+      const rounded = Math.round(mod360(displayHeading)) % 360;
       if (rounded !== lastDisplayedInt) {
         headingEl.textContent = String(rounded).padStart(3, '0') + '°';
-        cardinalEl.textContent = cardinalFromDegrees(displayHeading);
+        cardinalEl.textContent = cardinalFromDegrees(mod360(displayHeading));
         lastDisplayedInt = rounded;
       }
     }
@@ -268,7 +273,7 @@
     targetHeading = (Math.atan2(filterY, filterX) * 180 / Math.PI + 360) % 360;
 
     if (!hasReading) {
-      displayHeading = targetHeading;
+      displayHeading = targetHeading; // seed unwrapped value on first reading
       hasReading = true;
       if (!statusEl.textContent.startsWith('Reading')) {
         statusEl.textContent = 'Point your phone — top edge indicates heading';
