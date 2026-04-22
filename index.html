@@ -3,227 +3,332 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<meta name="theme-color" content="#0b0f17" />
+<meta name="theme-color" content="#000000" />
 <title>Compass</title>
 <style>
   :root {
-    --bg: #0b0f17;
-    --fg: #e8ecf1;
-    --muted: #8a93a6;
-    --accent: #ff4d4d;
-    --ring: #1c2333;
-    --ring-2: #2a3348;
-    --tick: #6b7388;
+    --bg: #000;
+    --fg: #ffffff;
+    --muted: #8a8a8a;
+    --tick-minor: #5a5a5a;
+    --tick-major: #e0e0e0;
+    --pill-bg: #d7c6ff;
+    --pill-fg: #3a2a6b;
+    --north: #ff3b30;
+    --info: #f5c518;
   }
   * { box-sizing: border-box; }
   html, body {
     margin: 0;
     padding: 0;
     height: 100%;
-    background: radial-gradient(circle at 50% 20%, #141b2c 0%, var(--bg) 60%);
+    background: var(--bg);
     color: var(--fg);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
+    font-variant-numeric: tabular-nums;
   }
   .app {
     height: 100dvh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    padding: 24px 16px;
+    padding: 18px 16px 24px;
+    position: relative;
   }
-  header {
-    text-align: center;
+  .pill {
+    background: var(--pill-bg);
+    color: var(--pill-fg);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    padding: 8px 20px;
+    border-radius: 999px;
+    margin-top: 4px;
   }
-  h1 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--muted);
+  .location {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    color: var(--fg);
   }
-  .heading {
-    font-variant-numeric: tabular-nums;
-    font-size: 48px;
-    font-weight: 300;
+  .info-ico {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px; height: 18px;
+    border: 1.5px solid var(--info);
+    color: var(--info);
+    border-radius: 50%;
+    font-size: 11px;
+    font-style: italic;
+    font-family: "Georgia", serif;
+    font-weight: 700;
+  }
+  .heading-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
     margin-top: 6px;
-    letter-spacing: 1px;
+    font-weight: 300;
   }
-  .cardinal {
-    font-size: 16px;
-    color: var(--muted);
-    letter-spacing: 2px;
+  .heading-num {
+    font-size: 38px;
+    letter-spacing: 0.5px;
+    font-weight: 400;
+  }
+  .heading-card {
+    font-size: 30px;
+    font-weight: 400;
+  }
+  .tri {
+    width: 0; height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 9px solid var(--fg);
+    margin-top: 4px;
+  }
+  .tick-label {
+    font-size: 13px;
+    color: var(--fg);
     margin-top: 2px;
+    font-weight: 400;
   }
   .compass-wrap {
     position: relative;
-    width: min(85vw, 380px);
+    width: min(88vw, 360px);
     aspect-ratio: 1 / 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin-top: 8px;
   }
-  .pointer {
-    position: absolute;
-    top: -2px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-top: 18px solid var(--accent);
-    filter: drop-shadow(0 0 6px rgba(255,77,77,0.6));
-    z-index: 3;
-  }
-  .compass {
+  .compass-wrap svg {
     width: 100%;
     height: 100%;
-    border-radius: 50%;
-    background:
-      radial-gradient(circle, #0f1626 0%, #0a0f1a 70%),
-      var(--ring);
-    box-shadow:
-      inset 0 0 0 2px var(--ring-2),
-      inset 0 0 30px rgba(0,0,0,0.6),
-      0 10px 40px rgba(0,0,0,0.5);
-    position: relative;
-    transition: transform 120ms linear;
+    display: block;
+    overflow: visible;
+  }
+  .dial {
+    transform-origin: 150px 150px;
+    transform-box: fill-box;
     will-change: transform;
   }
-  .compass svg {
+  .footer {
+    margin-top: auto;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px;
+  }
+  .strength {
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    color: var(--fg);
+    text-transform: uppercase;
+  }
+  .strength .num { margin-left: 8px; font-weight: 500; }
+  .actions {
+    display: flex;
+    gap: 10px;
+  }
+  .icon-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: #2a2a2a;
+    border: none;
+    color: #d0d0d0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .icon-btn:active { background: #3a3a3a; }
+  .overlay {
     position: absolute;
     inset: 0;
-    width: 100%;
-    height: 100%;
-  }
-  .center-dot {
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 10px; height: 10px;
-    transform: translate(-50%,-50%);
-    border-radius: 50%;
-    background: var(--fg);
-    box-shadow: 0 0 10px rgba(255,255,255,0.4);
-  }
-  footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.92);
+    z-index: 10;
+    padding: 24px;
     text-align: center;
-    color: var(--muted);
-    font-size: 13px;
-    min-height: 60px;
+    gap: 14px;
   }
-  button {
+  .overlay p {
+    color: var(--muted);
+    font-size: 14px;
+    max-width: 300px;
+    line-height: 1.5;
+    margin: 0;
+  }
+  .overlay .title {
+    color: var(--fg);
+    font-size: 18px;
+    font-weight: 500;
+  }
+  .enable-btn {
     appearance: none;
-    background: var(--accent);
-    color: white;
+    background: var(--pill-bg);
+    color: var(--pill-fg);
     border: none;
-    padding: 14px 28px;
+    padding: 12px 28px;
     border-radius: 999px;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     letter-spacing: 0.5px;
     cursor: pointer;
-    box-shadow: 0 6px 20px rgba(255,77,77,0.35);
+    margin-top: 4px;
   }
-  button:active { transform: scale(0.97); }
   .hidden { display: none !important; }
-  .status {
-    font-size: 12px;
-    margin-top: 8px;
-    color: var(--muted);
-  }
 </style>
 </head>
 <body>
 <div class="app">
-  <header>
-    <h1>Compass</h1>
-    <div class="heading" id="heading">---&deg;</div>
-    <div class="cardinal" id="cardinal">--</div>
-  </header>
+  <div class="pill">MAGNETIC HEADING</div>
+
+  <div class="location">
+    <span id="locationLabel">Compass</span>
+    <span class="info-ico" aria-hidden="true">i</span>
+  </div>
+
+  <div class="heading-row">
+    <span class="heading-num" id="headingNum">---</span><span class="heading-num">°</span>
+    <span class="heading-card" id="headingCard"></span>
+  </div>
+  <div class="tri" aria-hidden="true"></div>
+  <div class="tick-label" id="tickLabel">---</div>
 
   <div class="compass-wrap">
-    <div class="pointer"></div>
-    <div class="compass" id="compass">
-      <svg viewBox="0 0 200 200" aria-hidden="true">
+    <svg viewBox="-30 -30 360 360" aria-hidden="true">
+      <g class="dial" id="dial">
         <g id="ticks"></g>
-        <text x="100" y="26" text-anchor="middle" fill="#ff4d4d" font-size="16" font-weight="700">N</text>
-        <text x="174" y="105" text-anchor="middle" fill="#e8ecf1" font-size="14" font-weight="600">E</text>
-        <text x="100" y="184" text-anchor="middle" fill="#e8ecf1" font-size="14" font-weight="600">S</text>
-        <text x="26" y="105" text-anchor="middle" fill="#e8ecf1" font-size="14" font-weight="600">W</text>
-        <text x="137" y="52" text-anchor="middle" fill="#8a93a6" font-size="9">NE</text>
-        <text x="148" y="155" text-anchor="middle" fill="#8a93a6" font-size="9">SE</text>
-        <text x="52" y="155" text-anchor="middle" fill="#8a93a6" font-size="9">SW</text>
-        <text x="63" y="52" text-anchor="middle" fill="#8a93a6" font-size="9">NW</text>
-      </svg>
-      <div class="center-dot"></div>
+        <g id="degNumbers"></g>
+        <!-- Cardinals inside the ring -->
+        <text x="150" y="88" text-anchor="middle" dominant-baseline="central"
+              fill="#ffffff" font-size="26" font-weight="500">N</text>
+        <text x="212" y="150" text-anchor="middle" dominant-baseline="central"
+              fill="#ffffff" font-size="26" font-weight="500">E</text>
+        <text x="150" y="212" text-anchor="middle" dominant-baseline="central"
+              fill="#ffffff" font-size="26" font-weight="500">S</text>
+        <text x="88" y="150" text-anchor="middle" dominant-baseline="central"
+              fill="#ffffff" font-size="26" font-weight="500">W</text>
+        <!-- Red North indicator on the dial -->
+        <line x1="30" y1="150" x2="58" y2="150"
+              stroke="#ff3b30" stroke-width="2" stroke-linecap="round"
+              transform="rotate(-90 150 150)" />
+      </g>
+      <!-- Fixed center crosshair & dot (do NOT rotate with dial) -->
+      <g>
+        <line x1="150" y1="138" x2="150" y2="162" stroke="#ffffff" stroke-width="1"/>
+        <line x1="138" y1="150" x2="162" y2="150" stroke="#ffffff" stroke-width="1"/>
+        <circle cx="150" cy="130" r="4" fill="#9a9a9a"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="footer">
+    <div class="strength">STRENGTH <span class="num" id="strengthVal">-- μT</span></div>
+    <div class="actions">
+      <button class="icon-btn" id="recenterBtn" aria-label="Recalibrate">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 9 15 9"/></svg>
+      </button>
+      <button class="icon-btn" id="settingsBtn" aria-label="Settings">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
     </div>
   </div>
 
-  <footer>
-    <button id="startBtn">Enable Compass</button>
-    <div class="status" id="status">Tap to grant motion &amp; orientation access</div>
-  </footer>
+  <div class="overlay" id="overlay">
+    <div class="title">Compass</div>
+    <p>This app needs motion &amp; orientation access to read the phone's magnetometer.</p>
+    <button class="enable-btn" id="startBtn">Enable Compass</button>
+    <p id="status" style="font-size:12px;"></p>
+  </div>
 </div>
 
 <script>
 (function () {
-  const compass = document.getElementById('compass');
-  const headingEl = document.getElementById('heading');
-  const cardinalEl = document.getElementById('cardinal');
+  const dial = document.getElementById('dial');
+  const headingNum = document.getElementById('headingNum');
+  const headingCard = document.getElementById('headingCard');
+  const tickLabel = document.getElementById('tickLabel');
+  const strengthVal = document.getElementById('strengthVal');
+  const overlay = document.getElementById('overlay');
   const startBtn = document.getElementById('startBtn');
   const statusEl = document.getElementById('status');
   const ticksGroup = document.getElementById('ticks');
+  const degNumbers = document.getElementById('degNumbers');
 
-  // Build tick marks
+  const CX = 150, CY = 150;
+  const R_OUTER = 120;        // outer edge of ticks
+  const R_MINOR = 110;        // inner end of minor ticks
+  const R_MAJOR = 102;        // inner end of major ticks
+  const R_NUMBERS = 138;      // degree label radius (outside ticks)
+
   const svgNS = 'http://www.w3.org/2000/svg';
-  for (let deg = 0; deg < 360; deg += 5) {
+
+  // Build ticks — minor every 3° (thin light gray), major every 30° (white)
+  for (let deg = 0; deg < 360; deg += 3) {
     const isMajor = deg % 30 === 0;
-    const len = isMajor ? 10 : 5;
-    const x1 = 100 + Math.sin(deg * Math.PI / 180) * 90;
-    const y1 = 100 - Math.cos(deg * Math.PI / 180) * 90;
-    const x2 = 100 + Math.sin(deg * Math.PI / 180) * (90 - len);
-    const y2 = 100 - Math.cos(deg * Math.PI / 180) * (90 - len);
+    const rad = deg * Math.PI / 180;
+    const sin = Math.sin(rad), cos = -Math.cos(rad);
+    const x1 = CX + sin * R_OUTER;
+    const y1 = CY + cos * R_OUTER;
+    const innerR = isMajor ? R_MAJOR : R_MINOR;
+    const x2 = CX + sin * innerR;
+    const y2 = CY + cos * innerR;
     const line = document.createElementNS(svgNS, 'line');
     line.setAttribute('x1', x1);
     line.setAttribute('y1', y1);
     line.setAttribute('x2', x2);
     line.setAttribute('y2', y2);
-    line.setAttribute('stroke', isMajor ? '#aab2c4' : '#4a5266');
-    line.setAttribute('stroke-width', isMajor ? 1.5 : 1);
+    line.setAttribute('stroke', isMajor ? '#ffffff' : '#606060');
+    line.setAttribute('stroke-width', isMajor ? 2 : 1);
+    line.setAttribute('stroke-linecap', 'round');
     ticksGroup.appendChild(line);
   }
 
-  function cardinalFromDegrees(deg) {
-    const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
-    return dirs[Math.round(deg / 22.5) % 16];
+  // Degree numbers at 30° (skip 0 — implied by N)
+  [30, 60, 120, 150, 180, 210, 240, 270, 300, 330].forEach(deg => {
+    const rad = deg * Math.PI / 180;
+    const x = CX + Math.sin(rad) * R_NUMBERS;
+    const y = CY - Math.cos(rad) * R_NUMBERS;
+    const t = document.createElementNS(svgNS, 'text');
+    t.setAttribute('x', x);
+    t.setAttribute('y', y);
+    t.setAttribute('text-anchor', 'middle');
+    t.setAttribute('dominant-baseline', 'central');
+    t.setAttribute('fill', '#ffffff');
+    t.setAttribute('font-size', '13');
+    t.setAttribute('font-weight', '400');
+    t.textContent = String(deg);
+    degNumbers.appendChild(t);
+  });
+
+  function cardinalLetter(deg) {
+    const dirs = ['N','NE','E','SE','S','SW','W','NW'];
+    return dirs[Math.round(deg / 45) % 8];
   }
 
-  // Vector-space low-pass filter: average sin/cos so the 0/360 wrap is handled correctly,
-  // then animate the displayed angle toward the filtered target.
-  // Tunables: SENSOR_ALPHA = how much each new raw reading moves the filter (lower = smoother, more lag)
-  //           DISPLAY_LERP = how fast the visual catches up per frame
-  //           DEAD_ZONE_DEG = ignore sub-degree jitter so the readout is steady when still
   const SENSOR_ALPHA = 0.15;
   const DISPLAY_LERP = 0.18;
   const DEAD_ZONE_DEG = 0.4;
 
   let filterX = null, filterY = null;
   let targetHeading = 0;
-  let displayHeading = 0; // unwrapped — accumulates so CSS rotate() never takes the long way round
-  let lastDisplayedInt = -1;
+  let displayHeading = 0;
+  let lastInt = -1;
   let hasReading = false;
 
   function shortestAngleDiff(a, b) {
     return ((b - a) % 360 + 540) % 360 - 180;
   }
-
-  function mod360(v) {
-    return ((v % 360) + 360) % 360;
-  }
+  function mod360(v) { return ((v % 360) + 360) % 360; }
 
   function tick() {
     if (hasReading) {
@@ -232,12 +337,14 @@
       if (Math.abs(diff) > DEAD_ZONE_DEG) {
         displayHeading += diff * DISPLAY_LERP;
       }
-      compass.style.transform = `rotate(${-displayHeading}deg)`;
+      dial.setAttribute('transform', `rotate(${-displayHeading} ${CX} ${CY})`);
       const rounded = Math.round(mod360(displayHeading)) % 360;
-      if (rounded !== lastDisplayedInt) {
-        headingEl.textContent = String(rounded).padStart(3, '0') + '°';
-        cardinalEl.textContent = cardinalFromDegrees(mod360(displayHeading));
-        lastDisplayedInt = rounded;
+      if (rounded !== lastInt) {
+        headingNum.textContent = String(rounded);
+        headingCard.textContent = cardinalLetter(mod360(displayHeading));
+        const nearest30 = Math.round(mod360(displayHeading) / 30) * 30 % 360;
+        tickLabel.textContent = String(nearest30);
+        lastInt = rounded;
       }
     }
     requestAnimationFrame(tick);
@@ -245,8 +352,6 @@
   requestAnimationFrame(tick);
 
   function onOrientation(event) {
-    // iOS exposes true compass heading via webkitCompassHeading (0 = N, clockwise)
-    // Others expose `alpha` (0 = device's reference, counter-clockwise from N when absolute=true)
     let heading = null;
     if (typeof event.webkitCompassHeading === 'number' && !isNaN(event.webkitCompassHeading)) {
       heading = event.webkitCompassHeading;
@@ -254,18 +359,14 @@
       heading = (360 - event.alpha) % 360;
     } else if (typeof event.alpha === 'number') {
       heading = (360 - event.alpha) % 360;
-      statusEl.textContent = 'Reading is relative — may drift. Calibrate by waving phone in a figure 8.';
     }
-
     if (heading === null || isNaN(heading)) return;
 
     const rad = heading * Math.PI / 180;
     const x = Math.cos(rad);
     const y = Math.sin(rad);
-
     if (filterX === null) {
-      filterX = x;
-      filterY = y;
+      filterX = x; filterY = y;
     } else {
       filterX = filterX * (1 - SENSOR_ALPHA) + x * SENSOR_ALPHA;
       filterY = filterY * (1 - SENSOR_ALPHA) + y * SENSOR_ALPHA;
@@ -273,23 +374,43 @@
     targetHeading = (Math.atan2(filterY, filterX) * 180 / Math.PI + 360) % 360;
 
     if (!hasReading) {
-      displayHeading = targetHeading; // seed unwrapped value on first reading
+      displayHeading = targetHeading;
       hasReading = true;
-      if (!statusEl.textContent.startsWith('Reading')) {
-        statusEl.textContent = 'Point your phone — top edge indicates heading';
-      }
+      overlay.classList.add('hidden');
     }
   }
 
-  function attachListeners() {
+  function attachOrientationListeners() {
     if ('ondeviceorientationabsolute' in window) {
       window.addEventListener('deviceorientationabsolute', onOrientation, true);
     }
     window.addEventListener('deviceorientation', onOrientation, true);
   }
 
+  // Magnetometer (μT) — Android Chrome only
+  function tryMagnetometer() {
+    if (typeof Magnetometer === 'undefined') return;
+    try {
+      const sensor = new Magnetometer({ frequency: 10, referenceFrame: 'device' });
+      let mx = 0, my = 0, mz = 0, init = false;
+      sensor.addEventListener('reading', () => {
+        if (!init) { mx = sensor.x; my = sensor.y; mz = sensor.z; init = true; }
+        else {
+          mx = mx * 0.85 + sensor.x * 0.15;
+          my = my * 0.85 + sensor.y * 0.15;
+          mz = mz * 0.85 + sensor.z * 0.15;
+        }
+        const magnitude = Math.sqrt(mx * mx + my * my + mz * mz);
+        strengthVal.textContent = `${magnitude.toFixed(0)} μT`;
+      });
+      sensor.addEventListener('error', () => {});
+      sensor.start();
+    } catch (_) { /* permission denied or unsupported */ }
+  }
+
   async function start() {
     startBtn.disabled = true;
+    statusEl.textContent = '';
     try {
       const needsPermission = typeof DeviceOrientationEvent !== 'undefined'
         && typeof DeviceOrientationEvent.requestPermission === 'function';
@@ -301,12 +422,12 @@
           return;
         }
       }
-      attachListeners();
-      startBtn.classList.add('hidden');
-      statusEl.textContent = 'Waiting for sensor…';
+      attachOrientationListeners();
+      tryMagnetometer();
       setTimeout(() => {
         if (!hasReading) {
-          statusEl.textContent = 'No sensor data. Try moving the device or open on a phone.';
+          statusEl.textContent = 'No sensor data yet — try moving the device.';
+          startBtn.disabled = false;
         }
       }, 3000);
     } catch (err) {
@@ -317,13 +438,19 @@
 
   startBtn.addEventListener('click', start);
 
-  // On browsers that don't need permission (most Android), auto-attach but keep button
-  // so users can retry if the first reading doesn't arrive.
-  if (!(typeof DeviceOrientationEvent !== 'undefined'
-      && typeof DeviceOrientationEvent.requestPermission === 'function')) {
-    attachListeners();
-    statusEl.textContent = 'Move the phone to calibrate…';
+  // Android: no permission prompt needed — auto-start and hide overlay on first reading.
+  const needsPermission = typeof DeviceOrientationEvent !== 'undefined'
+    && typeof DeviceOrientationEvent.requestPermission === 'function';
+  if (!needsPermission) {
+    attachOrientationListeners();
+    tryMagnetometer();
   }
+
+  // Recalibrate button = reset filter so user can re-stabilise
+  document.getElementById('recenterBtn').addEventListener('click', () => {
+    filterX = null; filterY = null;
+    statusEl.textContent = '';
+  });
 })();
 </script>
 </body>
