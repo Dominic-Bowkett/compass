@@ -202,24 +202,38 @@
     return dirs[Math.round(deg / 22.5) % 16];
   }
 
-  // Smoothed rotation — the rose rotates opposite to heading so N points to true north
+  // Vector-space low-pass filter: average sin/cos so the 0/360 wrap is handled correctly,
+  // then animate the displayed angle toward the filtered target.
+  // Tunables: SENSOR_ALPHA = how much each new raw reading moves the filter (lower = smoother, more lag)
+  //           DISPLAY_LERP = how fast the visual catches up per frame
+  //           DEAD_ZONE_DEG = ignore sub-degree jitter so the readout is steady when still
+  const SENSOR_ALPHA = 0.15;
+  const DISPLAY_LERP = 0.18;
+  const DEAD_ZONE_DEG = 0.4;
+
+  let filterX = null, filterY = null;
   let targetHeading = 0;
   let displayHeading = 0;
+  let lastDisplayedInt = -1;
   let hasReading = false;
 
   function shortestAngleDiff(a, b) {
-    let d = ((b - a) % 360 + 540) % 360 - 180;
-    return d;
+    return ((b - a) % 360 + 540) % 360 - 180;
   }
 
   function tick() {
     if (hasReading) {
       const diff = shortestAngleDiff(displayHeading, targetHeading);
-      displayHeading = (displayHeading + diff * 0.2 + 360) % 360;
+      if (Math.abs(diff) > DEAD_ZONE_DEG) {
+        displayHeading = (displayHeading + diff * DISPLAY_LERP + 360) % 360;
+      }
       compass.style.transform = `rotate(${-displayHeading}deg)`;
-      const rounded = Math.round(displayHeading);
-      headingEl.textContent = String(rounded).padStart(3, '0') + '°';
-      cardinalEl.textContent = cardinalFromDegrees(displayHeading);
+      const rounded = Math.round(displayHeading) % 360;
+      if (rounded !== lastDisplayedInt) {
+        headingEl.textContent = String(rounded).padStart(3, '0') + '°';
+        cardinalEl.textContent = cardinalFromDegrees(displayHeading);
+        lastDisplayedInt = rounded;
+      }
     }
     requestAnimationFrame(tick);
   }
@@ -238,12 +252,26 @@
       statusEl.textContent = 'Reading is relative — may drift. Calibrate by waving phone in a figure 8.';
     }
 
-    if (heading !== null && !isNaN(heading)) {
-      targetHeading = heading;
-      if (!hasReading) {
-        displayHeading = heading;
-        hasReading = true;
-        statusEl.textContent = statusEl.textContent.startsWith('Reading') ? statusEl.textContent : 'Point your phone — top edge indicates heading';
+    if (heading === null || isNaN(heading)) return;
+
+    const rad = heading * Math.PI / 180;
+    const x = Math.cos(rad);
+    const y = Math.sin(rad);
+
+    if (filterX === null) {
+      filterX = x;
+      filterY = y;
+    } else {
+      filterX = filterX * (1 - SENSOR_ALPHA) + x * SENSOR_ALPHA;
+      filterY = filterY * (1 - SENSOR_ALPHA) + y * SENSOR_ALPHA;
+    }
+    targetHeading = (Math.atan2(filterY, filterX) * 180 / Math.PI + 360) % 360;
+
+    if (!hasReading) {
+      displayHeading = targetHeading;
+      hasReading = true;
+      if (!statusEl.textContent.startsWith('Reading')) {
+        statusEl.textContent = 'Point your phone — top edge indicates heading';
       }
     }
   }
